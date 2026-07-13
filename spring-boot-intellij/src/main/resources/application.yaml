@@ -1,3 +1,10 @@
 spring:
   application:
     name: spring-boot-intellij
+
+logging:
+  level:
+    root: INFO
+    net.springbootintellij: debug
+  pattern:
+    console: "%d{HH:mm:ss} - %msg%n"
