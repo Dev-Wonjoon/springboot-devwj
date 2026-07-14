@@ -1,4 +1,4 @@
-package net.springboard.post.dto;
+package net.likelion.bebc25.board01.dto;
 
 import java.time.LocalDateTime;
 

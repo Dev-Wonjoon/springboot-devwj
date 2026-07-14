@@ -1,7 +1,7 @@
-package net.springboard.post.controller;
+package net.likelion.bebc25.board01.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import net.springboard.post.dto.PostDto;
+import net.likelion.bebc25.board01.dto.PostDto;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -132,11 +132,11 @@ public class BoardController {
                       </td>
                     </tr>
                     """.formatted(
-                            post.getId(),
-                            post.getId(),
-                            post.getTitle(),
-                            post.getAuthor(),
-                            post.getCreatedAt()
+                    post.getId(),
+                    post.getId(),
+                    post.getTitle(),
+                    post.getAuthor(),
+                    post.getCreatedAt()
             );
         }
 
