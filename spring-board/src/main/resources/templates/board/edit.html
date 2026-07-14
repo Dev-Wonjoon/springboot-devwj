@@ -35,7 +35,7 @@
 
       <div style="margin-top: 20px;">
         <button type="submit" class="btn">수정</button>
-        <a href="detail.html" class="btn btn-secondary">취소</a>
+        <a th:href="@{detail.html(id=${post.id})}" class="btn btn-secondary">취소</a>
       </div>
     </form>
   </div>

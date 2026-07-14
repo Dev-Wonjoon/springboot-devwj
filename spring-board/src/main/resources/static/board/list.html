@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>스프링 게시판 - 목록</title>
-  <link rel="stylesheet" href="/board/css/common.css">
-  <link rel="stylesheet" href="/board/css/list.css">
+  <link rel="stylesheet" th:href="/css/common.css">
+  <link rel="stylesheet" th:href="/css/list.css">
 </head>
 <body>
   <div class="container">
@@ -55,7 +55,7 @@
           <td>작성자1</td>
           <td>2026-07-13 13:10:00</td>
           <td>
-            <a href="list.html" class="btn btn-danger">삭제</a>
+            <a th:href="@{list.html()}" class="btn btn-danger">삭제</a>
           </td>
         </tr>
       </tbody>

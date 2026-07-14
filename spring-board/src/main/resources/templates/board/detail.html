@@ -10,8 +10,8 @@
 <div class="container">
   <h1>게시글 상세 정보</h1>
   <div class="nav">
-    <a href="list.html">목록으로</a>
-    <a href="write.html">새 글 쓰기</a>
+    <a th:href="@{list.html}">목록으로</a>
+    <a th:href="@{write.html}">새 글 쓰기</a>
   </div>
 
   <table style="margin-bottom: 20px;">
@@ -29,7 +29,7 @@
     </tr>
     <tr>
       <th>작성일시</th>
-      <td th:text="${post.createdAt}"></td>
+      <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
     </tr>
     <tr>
       <th>내용</th>
@@ -38,8 +38,8 @@
   </table>
 
   <div>
-    <a href="edit.html" class="btn">수정하기</a>
-    <a href="list.html" class="btn btn-secondary">목록으로</a>
+    <a th:href="@{edit.html(id=${post.id})}" class="btn">수정하기</a>
+    <a th:href="@{list.html}" class="btn btn-secondary">목록으로</a>
   </div>
 </div>
 </body>

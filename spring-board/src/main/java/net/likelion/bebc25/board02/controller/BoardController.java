@@ -21,23 +21,23 @@ public class BoardController {
         fakePosts = new ArrayList<PostDto>();
         PostDto post1 = new PostDto();
         post1.setId(1);
-        post1.setTitle("Post 1");
+        post1.setTitle("Title 1");
         post1.setContent("This is a post 1");
         post1.setAuthor("Haru");
         post1.setCreatedAt(LocalDateTime.now());
 
         PostDto post2 = new PostDto();
         post2.setId(2);
-        post2.setTitle("Post 2");
+        post2.setTitle("Title 2");
         post2.setContent("This is a post 2");
-        post2.setAuthor("Haru");
+        post2.setAuthor("Namu");
         post2.setCreatedAt(LocalDateTime.now());
 
         PostDto post3 = new PostDto();
         post3.setId(3);
-        post3.setTitle("Post 3");
+        post3.setTitle("Title 3");
         post3.setContent("This is a post 3");
-        post3.setAuthor("Haru");
+        post3.setAuthor("Minsu");
         post3.setCreatedAt(LocalDateTime.now());
 
         fakePosts.add(post1);
@@ -50,75 +50,11 @@ public class BoardController {
     }
 
     @GetMapping("/list.html")
-    @ResponseBody
-    public String getBoardList() {
+    public String getBoardList(Model model) {
         // 게시글 목록 조회(데이터)
-        List<PostDto> posts = getPosts();
+        model.addAttribute("posts", getPosts());
 
-        // View
-        String result = """
-                <!DOCTYPE html>
-                <html lang="ko">
-                <head>
-                  <meta charset="UTF-8">
-                  <title>스프링 게시판 - 목록</title>
-                  <link rel="stylesheet" href="/board/css/common.css">
-                  <link rel="stylesheet" href="/board/css/list.css">
-                </head>
-                <body>
-                  <div class="container">
-                    <h1>게시글 목록</h1>
-                    <div class="nav">
-                      <a href="list.html">목록으로</a>
-                      <a href="write.html">새 글 쓰기</a>
-                    </div>
-                
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>번호</th>
-                          <th>제목</th>
-                          <th>작성자</th>
-                          <th>작성일시</th>
-                          <th>작업</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                """;
-
-        for (PostDto post : posts) {
-            result += """
-                    <tr>
-                      <td>%s</td>
-                      <td>
-                        <a href="detail.html?id=%s">%s</a>
-                      </td>
-                      <td>%s</td>
-                      <td>%s</td>
-                      <td>
-                        <a href="list.html" class="btn btn-danger">삭제</a>
-                      </td>
-                    </tr>
-                    """.formatted(
-                    post.getId(),
-                    post.getId(),
-                    post.getTitle(),
-                    post.getAuthor(),
-                    post.getCreatedAt()
-            );
-        }
-
-
-        result += """   
-                      </tbody>
-                    </table>
-                  </div>
-                </body>
-                </html>
-                
-                """;
-
-        return result;
+        return "board/list";
     }
 
     @GetMapping("/detail.html")
@@ -131,109 +67,50 @@ public class BoardController {
     }
 
     @GetMapping("/write.html")
-    @ResponseBody
-    public String write(@ModelAttribute PostDto post) {
-
-
+    public String writeForm(Model model) {
+        model.addAttribute("postForm", new PostDto());
         return "board/write";
     }
 
-    @PostMapping("/new")
-    @ResponseBody
+    @PostMapping("/write")
     public String writePost(
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam("author") String author
     ) {
-        PostDto postDto = new PostDto(title, content, author);
+        PostDto post = new PostDto(title, content, author);
+        log.debug(post.toString());
 
-        int nextId;
-
-        if (fakePosts.isEmpty()) {
-            nextId = 1;
-        } else {
-            nextId = fakePosts.get(fakePosts.size() - 1).getId();
-        }
-
-        postDto.setId(nextId);
-        postDto.setCreatedAt(LocalDateTime.now());
-
-        fakePosts.add(postDto);
-
-        log.debug("등록 요청 DTD: {}", postDto);
-        return "등록 완료";
+        savePost(post);
+        return "redirect:detail.html?id=" + post.getId();
     }
 
-    public List<PostDto> savePost(PostDto postDto) {
+    public void savePost(PostDto postDto) {
         postDto.setId(fakePosts.get(fakePosts.size() - 1).getId() + 1);
+        postDto.setCreatedAt(LocalDateTime.now());
         this.fakePosts.add(postDto);
-        return this.fakePosts;
     }
 
-    @GetMapping("/edit")
-    @ResponseBody
-    public String getEditForm(@RequestParam int id) {
-        PostDto postDto = fakePosts.get(id-1);
-        String result = """
-                    <!DOCTYPE html>
-                    <html lang="ko">
-                    <head>
-                      <meta charset="UTF-8">
-                      <title>스프링 게시판 - 글 수정하기</title>
-                      <link rel="stylesheet" href="/board/css/common.css">
-                      <link rel="stylesheet" href="/board/css/write.css">
-                    </head>
-                    <body>
-                      <div class="container">
-                        <h1>게시글 수정</h1>
-                        <div class="nav">
-                          <a href="list.html">목록으로</a>
-                          <a href="write.html">새 글 쓰기</a>
-                        </div>
-                
-                        <form action="edit" METHOD="POST">
-                          <input type="hidden" id="id" value="%s">
-                
-                          <div class="form-group">
-                            <label for="title">제목</label>
-                            <input type="text" id="title" name="title" value="%s" required>
-                          </div>
-                
-                          <div class="form-group">
-                            <label for="author">작성자</label>
-                            <input type="text" id="author" name="author" value="%s" required>
-                          </div>
-                
-                          <div class="form-group">
-                            <label for="content">내용</label>
-                            <textarea id="content" name="content" rows="10" required>%s</textarea>
-                          </div>
-                
-                          <div style="margin-top: 20px;">
-                            <button type="submit" class="btn">수정</button>
-                            <a href="detail.html" class="btn btn-secondary">취소</a>
-                          </div>
-                        </form>
-                      </div>
-                    </body>
-                    </html>
-                """.formatted(postDto.getId(), postDto.getTitle(), postDto.getContent(), postDto.getAuthor());
+    @GetMapping("/edit.html")
+    public String getEditForm(@RequestParam("id") int id, Model model) {
+        PostDto post = getPosts().get(id-1);
 
-        return result;
+        model.addAttribute("postForm", post);
+        return "board/write";
     }
 
     @PostMapping("/edit")
-    public String editPost(@ModelAttribute PostDto postDto) {
+    public String editPost(@ModelAttribute("postForm") PostDto postDto) {
         log.debug(postDto.toString());
         updatePost(postDto);
-        return "redirect:detail.html";
+        return "redirect:detail.html?id=" + postDto.getId();
     }
 
     public void updatePost(PostDto postDto) {
         PostDto targetPost = null;
-        for (PostDto post : getPosts()) {
-            if (post.getId() == targetPost.getId()) {
-                targetPost = post;
+        for (PostDto org : getPosts()) {
+            if (org.getId() == postDto.getId()) {
+                targetPost = org;
                 break;
             }
         }
