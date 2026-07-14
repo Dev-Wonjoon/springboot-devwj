@@ -5,3 +5,7 @@ spring:
   devtools:
     livereload:
       enabled: true
+
+logging:
+  level:
+    net.springboard: DEBUG

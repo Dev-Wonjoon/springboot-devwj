@@ -1,20 +1,19 @@
 package net.springboard.post.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import net.springboard.post.dto.PostDto;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@Slf4j
 public class BoardController {
 
-    private final List<PostDto> fakePosts;
+    private List<PostDto> fakePosts;
 
     public BoardController() {
         fakePosts = new ArrayList<PostDto>();
@@ -41,11 +40,11 @@ public class BoardController {
 
         fakePosts.add(post1);
         fakePosts.add(post2);
+        fakePosts.add(post3);
     }
 
     public List<PostDto> getPosts() {
-        List<PostDto> posts = new ArrayList<>();
-        return posts;
+        return fakePosts;
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -84,7 +83,7 @@ public class BoardController {
 
     @GetMapping("/01/board/list.html")
     @ResponseBody
-    public String getBoardList(){
+    public String getBoardList() {
         // 게시글 목록 조회(데이터)
         List<PostDto> posts = getPosts();
 
@@ -119,12 +118,12 @@ public class BoardController {
                       <tbody>
                 """;
 
-        for(PostDto post : posts){
+        for (PostDto post : posts) {
             result += """
                     <tr>
                       <td>%s</td>
                       <td>
-                        <a href="detail.html">%s</a>
+                        <a href="detail.html?id=%s">%s</a>
                       </td>
                       <td>%s</td>
                       <td>%s</td>
@@ -133,10 +132,11 @@ public class BoardController {
                       </td>
                     </tr>
                     """.formatted(
-                    post.getId(),
-                    post.getTitle(),
-                    post.getAuthor(),
-                    post.getCreatedAt()
+                            post.getId(),
+                            post.getId(),
+                            post.getTitle(),
+                            post.getAuthor(),
+                            post.getCreatedAt()
             );
         }
 
@@ -155,8 +155,9 @@ public class BoardController {
 
     @GetMapping("/01/board/detail.html")
     @ResponseBody
-    public String getDetail(){
-        PostDto post = getPosts().get(0);
+    public String getDetail(@RequestParam("id") int id) {
+        List<PostDto> posts = getPosts();
+        PostDto post = posts.get(id-1);
         String result = """
                 <!DOCTYPE html>
                 <html lang="ko">
@@ -175,84 +176,195 @@ public class BoardController {
                     </div>
                 """;
         result += """
-                    <table style="margin-bottom: 20px;">
-                      <tr>
-                        <th style="width: 20%;">번호</th>
-                        <td>%s</td>
-                      </tr>
-                      <tr>
-                        <th>제목</th>
-                        <td>%s</td>
-                      </tr>
-                      <tr>
-                        <th>작성자</th>
-                        <td>%s</td>
-                      </tr>
-                      <tr>
-                        <th>작성일시</th>
-                        <td>%s</td>
-                      </tr>
-                      <tr>
-                        <th>내용</th>
-                        <td style="white-space: pre-wrap;">%s</td>
-                      </tr>
-                    </table>
-                    """;
+                <table style="margin-bottom: 20px;">
+                  <tr>
+                    <th style="width: 60px;">번호</th>
+                    <td>%s</td>
+                  </tr>
+                  <tr>
+                    <th>제목</th>
+                    <td>%s</td>
+                  </tr>
+                  <tr>
+                    <th>작성자</th>
+                    <td>%s</td>
+                  </tr>
+                  <tr>
+                    <th>작성일시</th>
+                    <td>%s</td>
+                  </tr>
+                  <tr>
+                    <th>내용</th>
+                    <td style="white-space: pre-wrap;">%s</td>
+                  </tr>
+                </table>
+                """.formatted(post.getId(), post.getTitle(), post.getAuthor(), post.getContent(), post.getCreatedAt());
+        ;
         result += """
-                    <div>
-                      <a href="edit.html" class="btn">수정하기</a>
-                      <a href="list.html" class="btn btn-secondary">목록으로</a>
-                    </div>
-                  </div>
-                </body>
-                </html>
-        """.formatted(post.getId(), post.getTitle(), post.getAuthor(), post.getCreatedAt());
+                            <div>
+                              <a href="edit?id=%s" class="btn">수정하기</a>
+                              <a href="list.html" class="btn btn-secondary">목록으로</a>
+                            </div>
+                          </div>
+                        </body>
+                        </html>
+                """.formatted(post.getId());
 
         return result;
     }
 
     @GetMapping("/01/board/write.html")
     @ResponseBody
-    public String write(){
+    public String write() {
         String result = """
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-              <meta charset="UTF-8">
-              <title>스프링 게시판 - 새 글 쓰기</title>
-              <link rel="stylesheet" href="/board/css/common.css">
-              <link rel="stylesheet" href="/board/css/write.css">
-            </head>
-            <body>
-              <div class="container">
-                <h1>게시글 등록</h1>
-                <div class="nav">
-                  <a href="list.html">목록으로</a>
-                  <a href="write.html">새 글 쓰기</a>
-                </div>      
-                <form action="list.html">
-                  <div class="form-group">
-                    <label for="title">제목</label>
-                    <input type="text" id="title" name="title" placeholder="제목을 입력하세요" required>
-                  </div>        
-                  <div class="form-group">
-                    <label for="author">작성자</label>
-                    <input type="text" id="author" name="author" placeholder="작성자 이름을 입력하세요" required>
-                  </div>        
-                  <div class="form-group">
-                    <label for="content">내용</label>
-                    <textarea id="content" name="content" rows="10" placeholder="내용을 입력하세요" required></textarea>
-                  </div>        
-                  <div style="margin-top: 20px;">
-                    <button type="submit" class="btn">등록</button>
-                    <a href="list.html" class="btn btn-secondary">취소</a>
-                  </div>
-                </form>
-              </div>
-            </body>
-            </html>
-        """;
+                    <!DOCTYPE html>
+                    <html lang="ko">
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>스프링 게시판 - 새 글 쓰기</title>
+                      <link rel="stylesheet" href="/board/css/common.css">
+                      <link rel="stylesheet" href="/board/css/write.css">
+                    </head>
+                    <body>
+                      <div class="container">
+                        <h1>게시글 등록</h1>
+                        <div class="nav">
+                          <a href="list.html">목록으로</a>
+                          <a href="write.html">새 글 쓰기</a>
+                        </div>
+                        <form action="/01/board/new" METHOD="POST">
+                          <div class="form-group">
+                            <label for="title">제목</label>
+                            <input type="text" id="title" name="title" placeholder="제목을 입력하세요" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="author">작성자</label>
+                            <input type="text" id="author" name="author" placeholder="작성자 이름을 입력하세요" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="content">내용</label>
+                            <textarea id="content" name="content" rows="10" placeholder="내용을 입력하세요" required></textarea>
+                          </div>
+                          <div style="margin-top: 20px;">
+                            <button type="submit" class="btn">등록</button>
+                            <a href="list.html" class="btn btn-secondary">취소</a>
+                          </div>
+                        </form>
+                      </div>
+                    </body>
+                    </html>
+                """;
 
         return result;
+    }
+
+    @PostMapping("/01/board/new")
+    @ResponseBody
+    public String writePost(
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam("author") String author
+    ) {
+        PostDto postDto = new PostDto(title, content, author);
+
+        int nextId;
+
+        if (fakePosts.isEmpty()) {
+            nextId = 1;
+        } else {
+            nextId = fakePosts.get(fakePosts.size() - 1).getId();
+        }
+
+        postDto.setId(nextId);
+        postDto.setCreatedAt(LocalDateTime.now());
+
+        fakePosts.add(postDto);
+
+        log.debug("등록 요청 DTD: {}", postDto);
+        return "등록 완료";
+    }
+
+    public List<PostDto> savePost(PostDto postDto) {
+        postDto.setId(fakePosts.get(fakePosts.size() - 1).getId() + 1);
+        this.fakePosts.add(postDto);
+        return this.fakePosts;
+    }
+
+    @GetMapping("/01/board/edit")
+    @ResponseBody
+    public String getEditForm(@RequestParam int id) {
+        PostDto postDto = fakePosts.get(id-1);
+        String result = """
+                    <!DOCTYPE html>
+                    <html lang="ko">
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>스프링 게시판 - 글 수정하기</title>
+                      <link rel="stylesheet" href="/board/css/common.css">
+                      <link rel="stylesheet" href="/board/css/write.css">
+                    </head>
+                    <body>
+                      <div class="container">
+                        <h1>게시글 수정</h1>
+                        <div class="nav">
+                          <a href="list.html">목록으로</a>
+                          <a href="write.html">새 글 쓰기</a>
+                        </div>
+                
+                        <form action="edit" METHOD="POST">
+                          <input type="hidden" id="id" value="%s">
+                
+                          <div class="form-group">
+                            <label for="title">제목</label>
+                            <input type="text" id="title" name="title" value="%s" required>
+                          </div>
+                
+                          <div class="form-group">
+                            <label for="author">작성자</label>
+                            <input type="text" id="author" name="author" value="%s" required>
+                          </div>
+                
+                          <div class="form-group">
+                            <label for="content">내용</label>
+                            <textarea id="content" name="content" rows="10" required>%s</textarea>
+                          </div>
+                
+                          <div style="margin-top: 20px;">
+                            <button type="submit" class="btn">수정</button>
+                            <a href="detail.html" class="btn btn-secondary">취소</a>
+                          </div>
+                        </form>
+                      </div>
+                    </body>
+                    </html>
+                """.formatted(postDto.getId(), postDto.getTitle(), postDto.getContent(), postDto.getAuthor());
+
+        return result;
+    }
+
+    @PostMapping("/01/board/edit")
+    public String editPost(@ModelAttribute PostDto postDto) {
+        log.debug(postDto.toString());
+        updatePost(postDto);
+        return "redirect:detail.html";
+    }
+
+    public void updatePost(PostDto postDto) {
+        PostDto targetPost = null;
+        for (PostDto post : getPosts()) {
+            if (post.getId() == targetPost.getId()) {
+                targetPost = post;
+                break;
+            }
+        }
+        targetPost.setTitle(postDto.getTitle());
+        targetPost.setContent(postDto.getContent());
+        targetPost.setAuthor(postDto.getAuthor());
+    }
+
+
+    @PostMapping("/01/board/delete")
+    public String deletePost() {
+        return "삭제 완료 후 보여줄 페이지";
     }
 }
