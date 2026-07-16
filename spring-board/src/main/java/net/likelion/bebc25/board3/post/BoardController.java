@@ -34,10 +34,7 @@ public class BoardController {
 
     @GetMapping("/detail.html")
     public String getDetail(@RequestParam("id") int id, Model model) {
-        PostDto post = getPosts().get(id-1);
-        model.addAttribute("post", post);
-
-
+        model.addAttribute("post", postService.getPost(id));
         return "board/detail";
     }
 
