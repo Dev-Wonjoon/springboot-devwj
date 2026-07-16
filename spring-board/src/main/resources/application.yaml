@@ -6,6 +6,10 @@ spring:
     livereload:
       enabled: true
 
+  datasource:
+    password: ${DB_PASSWORD}
+
+
 logging:
   level:
     net.springboard: DEBUG
