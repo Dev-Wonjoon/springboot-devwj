@@ -14,6 +14,7 @@ public class PureJdbcPostRepository implements PostRepository {
 
     private static String DB_URL = "jdbc:mysql://localhost:3306/board_db?serverTimezone=UTC&useSSL=false";
     private static String DB_USER = "root";
+    @Value("${DB_PASSWORD}")
     private final String DB_PASSWORD;
     public PureJdbcPostRepository(@Value("${DB_PASSWORD}") String dbPassword) {
         this.DB_PASSWORD = dbPassword;
